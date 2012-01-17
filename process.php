@@ -15,16 +15,14 @@ function outputErrors($errors) {
 }
 
 function error($data, $status, $message) { 
-    $errors["alerts"]["status"] = $status;
-    $errors["alerts"]["message"] = $message;
+    $data["alerts"]["status"]= $status;
+    $data["alerts"]["message"] = $message;
     return $data;
 }
 
 function processResults($columns, $entrants) {
     if (empty($_POST["gender"])) {
-        $errors["alerts"]["status"] = "FAIL";
-        $errors["alerts"]["message"] = "You must provide a gender for the results";
-        return $errors;
+        return error($errors, "FAIL", "You must provide a gender for the results");
     } else {
         $gender = htmlspecialchars($_POST["gender"]);
     }
@@ -35,9 +33,7 @@ function processResults($columns, $entrants) {
     // check file type
     if ($_FILES["results"]["type"] != "image/gif") {
         if ($_FILES["results"]["error"] > 0) {
-            $errors["alerts"]["status"] = "FAIL";
-            $errors["alerts"]["message"] = "You must provide a valid results CSV file";
-            return $errors;
+            return error($errors, "FAIL", "You must provide a valid results CSV file");
         
         // valid file type
         } else {
@@ -56,13 +52,16 @@ function processResults($columns, $entrants) {
                 }
             }
 
+            // make sure there is a header row
+            if (count($columns) < 1) {
+                return error($errors, "FAIL", "Could not find the header row. The header row is the first line of the file that contains the names of the columns. This should match the example files.");
+            }
+
             // check we have all of the header data
             for ($i = 0; $i < count($columns); $i++) {
                 if (!in_array($columns[$i], array_keys($header))) {
-                    $errors["alerts"]["header"] = "Could not find the required column: '"
-                        . $columns[$i] . "' in the header line.";
-                    $errors["alerts"]["status"] = "FAIL";
-                    return $errors;
+                    return error($errors, "FAIL", "Could not find the required column: '"
+                        . $columns[$i] . "' in the header line.");
                 }
             }
             
@@ -120,9 +119,7 @@ function outputFile($header, $data, $entrants, $errors) {
     $i = 0;
     
     if (empty($raceid) || !isset($raceid)) {
-        $errors["alerts"]["status"] = "FAIL";
-        $errors["alerts"]["raceid"] = "A race id must be provided";
-        return $errors;
+        return error($errors, "FAIL", "A race id must be provided");
     }
 
     $filename = "pub/results-eventdirector-" . time() . ".csv";
