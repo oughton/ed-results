@@ -68,7 +68,7 @@ function processResults($columns, $entrants) {
             for ($i = 0; $i < count($columns); $i++) {
                 if (!in_array($columns[$i], array_keys($header))) {
                     return error($errors, "FAIL", "Could not find the required column: '"
-                        . $columns[$i] . "' in the header line.");
+                        . $columns[$i] . "' in the header line. All of the following columns must be supplied: RACE_ID,DIVISION,BIB,FORENAME,SURNAME,TIME_FINISH");
                 }
             }
             
