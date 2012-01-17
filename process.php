@@ -1,4 +1,7 @@
 <?php
+
+tidyFiles();
+
 $returnData = array(
     "results" => processResults(array("Race No", "Name", "Division", "Time"), $entrants)
 );
@@ -18,6 +21,10 @@ function error($data, $status, $message) {
     $data["alerts"]["status"]= $status;
     $data["alerts"]["message"] = $message;
     return $data;
+}
+
+function tidyFiles() {
+    exec("rm -r pub/");
 }
 
 function processResults($columns, $entrants) {
