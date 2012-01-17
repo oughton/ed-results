@@ -1,9 +1,11 @@
 <?php
 
+$gender = $_POST["gender"];
+
 tidyFiles();
 
 $returnData = array(
-    "results" => processResults(array("Race No", "Name", "Division", "Time"), $entrants)
+    "results" => processResults(array("Race No", "Name", "Division", "Time"), $entrants, $gender)
 );
 $returnData["filename"] = $returnData["results"]["filename"];
 echo json_encode($returnData);
@@ -27,11 +29,9 @@ function tidyFiles() {
     exec("rm -r pub/");
 }
 
-function processResults($columns, $entrants) {
-    if (empty($_POST["gender"])) {
+function processResults($columns, $entrants, $gender) {
+    if (empty($gender)) {
         return error($errors, "FAIL", "You must provide a gender for the results");
-    } else {
-        $gender = htmlspecialchars($_POST["gender"]);
     }
 
     $raceid = htmlspecialchars($_POST['raceid']);  
@@ -94,6 +94,7 @@ function processResults($columns, $entrants) {
 
                         $g = $cells[$header["Gender"]]; 
                         if (!empty($g)) {
+                            $gender = "auto";
                             $data[$rowNum]["Gender"] = $cells[$header["Gender"]];
                         } else {
                             $data[$rowNum]["Gender"] = $gender;
@@ -111,14 +112,14 @@ function processResults($columns, $entrants) {
             }
             fclose($fh);
 
-            return outputFile($header, $data, $entrants, $errors);
+            return outputFile($header, $data, $entrants, $gender, $errors);
         }
     } else {
         echo "Invalid file";
     }
 }
 
-function outputFile($header, $data, $entrants, $errors) {
+function outputFile($header, $data, $entrants, $gender, $errors) {
     $raceid = htmlspecialchars($_POST['raceid']);
     $i = 0;
     
@@ -126,7 +127,7 @@ function outputFile($header, $data, $entrants, $errors) {
         return error($errors, "FAIL", "A race id must be provided");
     }
 
-    $filename = "pub/results-$raceid.csv";
+    $filename = "pub/results-$raceid-$gender.csv";
     $f = fopen($filename, "w"); 
 
     fwrite($f, "RACE_ID,GENDER,DIVISION,BIB,FORENAME,SURNAME,TIME_FINISH\n");
