@@ -1,9 +1,9 @@
 <?php
 $returnData = array(
-    "results" => processResults(array("Place", "Race No", "Name", "Division", "Time"), $entrants)
+    "results" => processResults(array("Race No", "Name", "Division", "Time"), $entrants)
 );
 $returnData["filename"] = $returnData["results"]["filename"];
-echo "<textarea>" . json_encode($returnData) . "</textarea>";
+echo json_encode($returnData);
 
 function outputErrors($errors) {
     if ($errors["alerts"]["status"] != "OK") {
@@ -12,6 +12,12 @@ function outputErrors($errors) {
         }
     }
     echo "<br />";
+}
+
+function error($data, $status, $message) { 
+    $errors["alerts"]["status"] = $status;
+    $errors["alerts"]["message"] = $message;
+    return $data;
 }
 
 function processResults($columns, $entrants) {
@@ -35,26 +41,12 @@ function processResults($columns, $entrants) {
         
         // valid file type
         } else {
+            ini_set('auto_detect_line_endings',TRUE);
             $fh = fopen($_FILES["results"]["tmp_name"], "r");
 
-            // find the header line
-            while (!feof($fh)) {
-                $line = fgets($fh);
-                $cells = explode(",", $line);
-                
-                if ($cells[0] != $columns[0]) continue;               
-                
-                $errors["alerts"]["header"] = "Header successfully read";
-                break;
-            }
+            //$line = fgets($fh);
+            $cells = fgetcsv($fh, 0);
             
-            // did we find a header line
-            if (!isset($errors["alerts"]["header"])) {
-                $errors["alerts"]["header"] = "Could not find the header line in the file.";
-                $errors["alerts"]["status"] = "FAIL";
-                return $errors;
-            }
-
             // extract header info
             for ($i = 0; $i < count($cells); $i++) {
                 $cell = $cells[$i];
@@ -73,6 +65,8 @@ function processResults($columns, $entrants) {
                     return $errors;
                 }
             }
+            
+            $errors["alerts"]["header"] = "Header successfully read";
 
             $rowNum = 0;
             while (!feof($fh)) {
