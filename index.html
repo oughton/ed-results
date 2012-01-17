@@ -6,50 +6,81 @@
 <body>
 
 <form id="resultsForm" action="process.php" method="post" enctype="multipart/form-data">
-<table>
-<tr>
-    <td><label for="results">Results File:</label></td>
-    <td><input id="results" type="file" name="results" /><br /></td>
-</tr>
-<tr>
-    <td><label for="gender">Gender</label></td>
-    <td><select name="gender" id="gender">
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-    </select></td>
-</tr>
-<tr>
-    <td><label for="raceid">Race ID:</label></td>
-    <td><input type="text" name="raceid"/></td>
-</tr>
-<tr>
-    <td><label for="bibid">Bib:</label></td>
-    <td><input type="text" name="bibid"/></td>
-</tr>
-</table>
-<p>
-<div id="extra"></div>
-<p>
-<input type="submit" value="Submit" />
-</form>
-<p>
-<strong>Progress:</strong><br />
-<div id="status"></div>
-<p>
-<strong>Download Link:</strong><br />
-<div id="download"></div>
+
+<div style="width:600px;">
+  <div id="formBox" style="border-style:solid;">
+    <table>
+    <tr>
+        <td><label for="results">Results File:</label></td>
+        <td><input id="results" type="file" name="results" /><br /></td>
+    </tr>
+    <tr>
+        <td><label for="gender">Gender</label></td>
+        <td><select name="gender" id="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select></td>
+    </tr>
+    <tr>
+        <td><label for="raceid">Race ID:</label></td>
+        <td><input type="text" name="raceid"/></td>
+    </tr>
+    <tr>
+        <td><label for="bibid">Bib:</label></td>
+        <td><input type="text" size="1" maxlength="1" name="bibid"/></td>
+    </tr>
+    </table>
+
+    <div id="extra"></div>
+    <p>
+    <input type="submit" value="Submit" />
+    </form>
+  </div>
+
+  <div id="statusBox" style="border-style:solid;">
+    <strong>Result:</strong><br />
+    <div id="status"></div>
+  </div>
+
+  <div id="downloadBox" style="border-style:solid;">
+    <strong>Download Link:</strong><br />
+    <div id="download"></div>
+  </div>
+</div>
 
 <script type="text/javascript"> 
     $(document).ready(function() { 
+        var formBox = $('#formBox');
         var statusDiv = $('#status');
+        var statusBox = $('#statusBox');
         var downloadDiv = $('#download');
+        var downloadBox = $('#downloadBox');
         var extraDiv = $('#extra');
 
-        function dataBack(response) { 
-            var missing, html;
+        function validate(formData, jqForm, options) { 
+            var form = jqForm[0]; 
+            if (!form.raceid.value || !form.bibid.value || !form.results.value) { 
+                alert('Please supply a results file, race ID and day number'); 
+                return false; 
+            } 
+        }
+
+        function reset() {
             extraDiv.empty();
             downloadDiv.empty();
             statusDiv.empty();
+            statusBox.css({ "background-color": "FFFFFF" });
+            downloadBox.css({ "background-color": "FFFFFF" });
+            formBox.css({ "background-color": "FFFFFF" });
+        }
+
+        function dataBack(response) { 
+            var missing, html;
+            reset();
+                    
+            formBox.css({ "background-color": "00FF00" });
+            statusBox.css({ "background-color": "FF0000" });
+            downloadBox.css({ "background-color": "FF0000" });
             
             // output alerts
             if (response.results && response.results.alerts) {
@@ -57,6 +88,8 @@
                 
                 if (response.results.alerts.status == "OK") {
                     statusDiv.append(response.results.count + " results successfully processed. Download the file bellow.");
+                    statusBox.css({ "background-color": "00FF00" });
+                    downloadBox.css({ "background-color": "00FF00" });
                 } else {
                     $.each(response.results.alerts, function(key, val) {
                         statusDiv.append(key + ": " + val + "<br />"); 
@@ -73,7 +106,13 @@
 
         $('#resultsForm').ajaxForm({
             dataType: 'json',
+            beforeSubmit: validate,
             success: dataBack 
+        });
+
+        $('#results').click(function() { 
+            $('#resultsForm').resetForm();
+            reset();
         });
     }); 
     </script> 

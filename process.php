@@ -109,9 +109,6 @@ function processResults($columns, $entrants) {
                 }
                 $rowNum++;
             }
-//echo "<pre>";
-//print_r($data);
-//echo "</pre>";
             fclose($fh);
 
             return outputFile($header, $data, $entrants, $errors);
