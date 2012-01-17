@@ -1,0 +1,82 @@
+<html>
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://github.com/malsup/form/raw/master/jquery.form.js"></script>
+</head>
+<body>
+
+<form id="resultsForm" action="process.php" method="post" enctype="multipart/form-data">
+<table>
+<tr>
+    <td><label for="results">Results File:</label></td>
+    <td><input id="results" type="file" name="results" /><br /></td>
+</tr>
+<tr>
+    <td><label for="gender">Gender</label></td>
+    <td><select name="gender" id="gender">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+    </select></td>
+</tr>
+<tr>
+    <td><label for="raceid">Race ID:</label></td>
+    <td><input type="text" name="raceid"/></td>
+</tr>
+<tr>
+    <td><label for="bibid">Bib:</label></td>
+    <td><input type="text" name="bibid"/></td>
+</tr>
+</table>
+<p>
+<div id="extra"></div>
+<p>
+<input type="submit" value="Submit" />
+</form>
+<p>
+<strong>Progress:</strong><br />
+<div id="status"></div>
+<p>
+<strong>Download Link:</strong><br />
+<div id="download"></div>
+
+<script type="text/javascript"> 
+    $(document).ready(function() { 
+        var statusDiv = $('#status');
+        var downloadDiv = $('#download');
+        var extraDiv = $('#extra');
+
+        function dataBack(response) { 
+            var missing, html;
+            extraDiv.empty();
+            downloadDiv.empty();
+            statusDiv.empty();
+            
+            // output alerts
+            if (response.results && response.results.alerts) {
+                statusDiv.append("* Results Import:<br />");
+                
+                if (response.results.alerts.status == "OK") {
+                    statusDiv.append(response.results.count + " results successfully processed. Download the file bellow.");
+                } else {
+                    $.each(response.results.alerts, function(key, val) {
+                        statusDiv.append(key + ": " + val + "<br />"); 
+                    });
+                }
+            }
+
+            // output download link
+            if (response.filename) {
+                downloadDiv.append("<a href='" 
+                    + response.filename + "'>Download Processed File</a>");
+            }
+        }
+
+        $('#resultsForm').ajaxForm({
+            dataType: 'json',
+            success: dataBack 
+        });
+    }); 
+    </script> 
+
+</body>
+</html>
