@@ -1,6 +1,5 @@
 <?php
 $returnData = array(
-    //"entrants" => processEntrants(&$entrants),
     "results" => processResults(array("Place", "Race No", "Name", "Division", "Time"), $entrants)
 );
 $returnData["filename"] = $returnData["results"]["filename"];
@@ -156,31 +155,4 @@ function outputFile($header, $data, $entrants, $errors) {
     return $errors;
 }
 
-function getTotalDuration ($startTime, $extraTime) {
-    $total = 0;
-    $duration = explode(':', $startTime);
-    $extraTime = explode(':', $extraTime);
-
-    if (count($duration) < 2) {
-        $duration = array_merge(array(0, 0), $startTime);
-    } else if (count($duration) < 3) {
-        $duration = array_merge(array(0), $startTime);
-    }
-    
-    if (count($extraTime) < 2) {
-        $extraTime = array_merge(array(0, 0), $extraTime);
-    } else if (count($extraTime) < 3) {
-        $extraTime = array_merge(array("0" => 0), $extraTime);
-    }
-    
-    $total += intval($duration[0]) * 60 * 60 + intval($extraTime[0]) * 60 * 60;     // hours to seconds
-    $total += intval($duration[1]) * 60 + intval($extraTime[1]) * 60;               // mins to seconds
-    $total += intval($duration[2]) + intval($extraTime[2]);                         // seconds
-    
-    $hours = floor($total / 60 / 60);
-    $mins = floor($total / 60) - $hours * 60;
-    $secs = $total % 60;
-    
-    return $hours . ':' . $mins . ':' . $secs;
-}
 ?>
