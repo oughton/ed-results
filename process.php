@@ -60,7 +60,7 @@ function processResults($columns, $entrants, $gender) {
             }
 
             // make sure there is a header row
-            if (count($columns) < 1) {
+            if (count($columns) < 1 || !isset($header)) {
                 return error($errors, "FAIL", "Could not find the header row. The header row is the first line of the file that contains the names of the columns. This should match the example files.");
             }
 
