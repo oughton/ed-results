@@ -129,7 +129,7 @@ function outputFile($header, $data, $entrants, $errors) {
         return error($errors, "FAIL", "A race id must be provided");
     }
 
-    $filename = "pub/results-eventdirector-" . time() . ".csv";
+    $filename = "pub/results-$raceid.csv";
     $f = fopen($filename, "w"); 
 
     fwrite($f, "RACE_ID,GENDER,DIVISION,BIB,FORENAME,SURNAME,TIME_FINISH\n");
